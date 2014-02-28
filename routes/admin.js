@@ -1,8 +1,8 @@
 
 /*
- * GET home page.
+ * GET admin page.
  */
 
-exports.index = function(req, res){
+exports.list = function(req, res){
   res.render('admin', { title: 'Admin' });
 };

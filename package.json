@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app"
   },
-  "repository" : {
+  "repository": {
     "type": "git",
     "url": "git@github.com/tonypujals/echo.git"
   },
@@ -17,6 +17,7 @@
   "homepage": "https://github.com/tonypujals/echo.io",
   "dependencies": {
     "express": "3.1.0",
-    "ejs": "*"
+    "ejs": "*",
+    "echo.io": "git://github.com/tonypujals/echo.io.git#v0.0.1"
   }
 }
