@@ -1,11 +1,152 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
-</html>
+<% include header %>
+<div class="container" role="main">
+
+  <!------------------------ status messages ---------------------------->
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4" id="info">
+    </div>
+  </div>
+
+  <!------------------------ start/stop server ---------------------------->
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="well">
+        <form role="form">
+          <div class="form-group">
+            <label for="portnumber">Echo Server port number</label>
+            <input type="text" class="form-control" id="portnumber"
+                   placeholder="Enter number between 1024-65535" value="5555">
+          </div>
+          <button type="submit" class="btn" id="btnserver" disabled>Start
+            Server
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!------------------------ send message ---------------------------->
+  <div class="row topmargin">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="well">
+        <form role="form" id="formmessage">
+          <div class="form-group">
+            <label for="message">Message</label>
+            <input type="text" class="form-control" id="message"
+                   placeholder="type message">
+          </div>
+          <button type="submit" class="btn btn-default" id="btnsendmessage">Send
+            Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!------------------------ show history ---------------------------->
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <button type="button" class="btn btn-info" id="btngethistory">Show History
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <h3>Messages</h3>
+
+      <div class="input-group">
+        <input type="text" class="form-control search"
+               placeholder="type here to search"/>
+        <span class="input-group-addon"><i
+              class="glyphicon glyphicon-search"></i></span>
+      </div>
+      <div id="target"></div>
+    </div>
+  </div>
+</div>
+
+<!-- /container -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+<script>
+
+  $(document).ready(function () {
+    var serverStarted = false;
+
+    var port = $('#portnumber').val();
+    $.getJSON('/api/v1/echoserver/' + port, function (result) {
+      var btn = $('#btnserver');
+
+      if (result && result.status == 'OK' && /started/.test(result.message)) {
+        serverStarted = true;
+        btn.text('Stop Server');
+        btn.removeClass('btn-success');
+        btn.addClass('btn-danger');
+      } else {
+        btn.removeClass('btn-danger');
+        btn.addClass('btn-success');
+      }
+
+      btn.prop('disabled', false);
+    });
+
+
+    $("#btnserver").click(function (e) {
+      var port = $('#portnumber').val();
+      e.preventDefault();
+      sendServerCommand(port, serverStarted ? 'stop' : 'start');
+    });
+
+    function sendServerCommand(port, command) {
+      $.post('/api/v1/echoserver/' + port + '/' + command, function (result) {
+        console.log(result);
+        if (result.status == 'error') {
+          console.log(result.message);
+        } else {
+          console.log(result.message);
+          var btn = $('#btnserver');
+
+          if (command == 'start') {
+            serverStarted = true;
+            btn.text('Stop Server');
+            btn.removeClass('btn-success');
+            btn.addClass('btn-danger');
+          } else {
+            serverStarted = false;
+            btn.text('Start Server');
+            btn.removeClass('btn-danger');
+            btn.addClass('btn-success');
+          }
+        }
+      });
+    }
+
+    $("#btnstopserver").click(function (e) {
+      var portnumber = $('#portnumber').val();
+      e.preventDefault();
+
+      //todo
+      alert("server stopped on port " + portnumber);
+
+    });
+
+    function validatePort(elem) {
+      var val = $('#portnumber').val();
+      var port = parseInt(val, 10);
+
+      if (port >= 1024 && port < 65535) {
+        return true;
+      } else {
+        alert("Enter a valid port number");
+        elem.focus();
+        return false;
+      }
+    }
+  });
+
+</script>
+
+<% include footer %>
+

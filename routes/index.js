@@ -1,8 +1,8 @@
 
 /*
- * GET home page.
+ * GET main page.
  */
 
 exports.index = function(req, res){
-  res.render('admin', { title: 'Admin' });
+  res.render('index', { title: 'echo' });
 };

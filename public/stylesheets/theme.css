@@ -20,3 +20,7 @@ body {
 .topmargin {
   margin-top: 20px;
 }
+
+.hidden {
+  visibility: hidden;
+}
