@@ -55,7 +55,7 @@
       <h3>Messages</h3>
 
       <div class="input-group">
-        <input type="text" class="form-control search"
+        <input type="text" class="form-control search" id="searchfilter"
                placeholder="type here to search"/>
         <span class="input-group-addon"><i
               class="glyphicon glyphicon-search"></i></span>
@@ -79,6 +79,7 @@
   $(document).ready(function () {
     var serverStarted = false;
     var client = new EchoClient();
+    var pattern = '';
 
 
     _.templateSettings = {
@@ -104,7 +105,6 @@
       btn.prop('disabled', false);
     });
 
-
     $("#btnserver").click(function (e) {
       var port = $('#portnumber').val();
       e.preventDefault();
@@ -113,11 +113,10 @@
 
     function sendServerCommand(port, command) {
       $.post('/api/v1/echoserver/' + port + '/' + command, function (result) {
-        console.log(result);
         if (result.status == 'error') {
           console.log(result.message);
         } else {
-          console.log(result.message);
+          // console.log(result.message);
           var btn = $('#btnserver');
 
           if (command == 'start') {
@@ -127,7 +126,7 @@
             btn.addClass('btn-danger');
 
             client.open('ws://localhost:' + port);
-            client.on.error = function (err) { console.log('WTF: ' + err.message) };
+            client.on.error = function (err) { console.log('error: ' + err.message) };
             client.on.open = function () { console.log('client open')};
             client.on.close = function () { console.log('client close')};
             client.on.message = onMessage;
@@ -189,17 +188,26 @@
       client.send(msg);
 
       // clear fields on each message send
-      $("#message").val("");
+      $("message").val("");
       $("#history").empty();
+      pattern = '';
     });
 
     <!-------------------------- history ----------------------------->
+
+    $("#searchfilter").bind('input', function() {
+      pattern = $(this).val();
+      var filtered = client.historyFilter(pattern);
+      onHistory(filtered);
+    });
 
     $("#btngethistory").click( function(){
       client.sendHistoryCommand();
     });
 
     function onHistory(response) {
+      if (!response || !response.messages) return;
+
       var tmplMarkup = $('#tmpl-messages').html();
       var compiledTmpl = _.template(tmplMarkup, { response : response });
       $('#history').html(compiledTmpl);
