@@ -7,61 +7,81 @@
       <div class="well">
         <form role="form">
           <div class="form-group">
-            <label for="portnumber">Echo Server port number</label>
-            <input type="text" class="form-control" id="portnumber"
-                   placeholder="Enter number between 1024-65535" value="5555">
+
+
+            <div class="form-inline">
+              <label for="portnumber">Echo Server</label>
+              <span id="server-status">stopped</span>
+            </div>
+
+
+            <div class="input-group">
+              <input type="text" class="form-control" id="portnumber"
+                     placeholder="Enter port between 1024-65535" value="5555">
+              <span class="input-group-btn">
+                <button type="submit" class="btn btn-default"
+                        id="btnserver"></button>
+              </span>
+
+            </div>
           </div>
-          <button type="submit" class="btn" id="btnserver" disabled>Start
-            Server
-          </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!------------------------ send message ---------------------------->
-  <div class="row topmargin">
-    <div class="col-md-4 col-md-offset-4">
-      <div class="well">
-        <form role="form" id="formmessage">
-          <div class="form-group">
-            <label for="message">Message</label>
-            <input type="text" class="form-control" id="message"
-                   placeholder="type message">
-          </div>
-          <button type="submit" class="btn btn-default" id="btnsendmessage">Send
-            Message
-          </button>
-        </form>
+  <div id="message-panel" class="hidden">
+    <!------------------------ send message ---------------------------->
+    <div class="row topmargin">
+      <div class="col-md-4 col-md-offset-4">
+        <div class="well">
+          <form role="form" id="formmessage">
+            <div class="form-group">
+              <label for="message">Message</label>
+
+              <div class="input-group">
+                <input type="text" class="form-control" id="message"
+                       placeholder="Send message...">
+              <span class="input-group-btn">
+                <button type="submit" class="btn btn-default"
+                        id="btnsendmessage">Send
+                </button>
+              </span>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!------------------------ status messages ---------------------------->
-  <div class="row">
-    <div class="col-md-4 col-md-offset-4" id="info">
+    <!------------------------ status messages ---------------------------->
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4" id="info">
+      </div>
     </div>
-  </div>
 
-  <!------------------------ show history ---------------------------->
-  <div class="row">
-    <div class="col-md-4 col-md-offset-4">
-      <button type="button" class="btn btn-info" id="btngethistory">Show History
-      </button>
+    <!------------------------ show history ---------------------------->
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4">
+        <button type="button" class="btn btn-info" id="btngethistory">Show
+          History
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 col-md-offset-4">
-      <h3>Messages</h3>
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4">
+        <h3>Messages</h3>
 
-      <div class="input-group">
-        <input type="text" class="form-control search" id="searchfilter"
-               placeholder="type here to search"/>
+        <div class="input-group">
+          <input type="text" class="form-control search" id="searchfilter"
+                 placeholder="type here to search"/>
         <span class="input-group-addon"><i
               class="glyphicon glyphicon-search"></i></span>
+        </div>
+        <div id="history"></div>
       </div>
-      <div id="history"></div>
     </div>
+
   </div>
 </div>
 
@@ -71,8 +91,9 @@
     src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script
     src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
-<script src="/javascripts/underscore.js"></script>
-<script src="/javascripts/echoclient.js"></script>
+<script src="/js/underscore.js"></script>
+<script src="/js/backbone.js"></script>
+<script src="/js/echoclient.js"></script>
 
 <script>
 
@@ -91,15 +112,32 @@
     var port = $('#portnumber').val();
     $.getJSON('/api/v1/echoserver/' + port, function (result) {
       var btn = $('#btnserver');
+      var glyph = $('#server-glyph');
+      var status = $('#server-status');
+      var messagePanel = $('#message-panel');
 
       if (result && result.status == 'OK' && /started/.test(result.message)) {
         serverStarted = true;
-        btn.text('Stop Server');
-        btn.removeClass('btn-success');
-        btn.addClass('btn-danger');
+        btn.text('Stop');
+        //btn.removeClass('btn-success');
+        //btn.addClass('btn-danger');
+        glyph.removeClass('glyphicon-remove-circle');
+        glyph.addClass('glyphicon-play-circle');
+        status.text('started');
+        status.removeClass('stopped');
+        status.addClass('started');
+        messagePanel.removeClass('hidden');
+        $('#message').focus();
       } else {
-        btn.removeClass('btn-danger');
-        btn.addClass('btn-success');
+        btn.text('Start');
+        //btn.removeClass('btn-danger');
+        //btn.addClass('btn-success');
+        glyph.removeClass('glyphicon-play-circle');
+        glyph.addClass('glyphicon-remove-circle');
+        status.text('stopped');
+        status.removeClass('started');
+        status.addClass('stopped');
+        messagePanel.addClass('hidden');
       }
 
       btn.prop('disabled', false);
@@ -118,26 +156,42 @@
         } else {
           // console.log(result.message);
           var btn = $('#btnserver');
+          var glyph = $('#server-glyph');
+          var status = $('#server-status');
+          var messagePanel = $('#message-panel');
 
           if (command == 'start') {
             serverStarted = true;
-            btn.text('Stop Server');
-            btn.removeClass('btn-success');
-            btn.addClass('btn-danger');
+            btn.text('Stop');
+            //btn.removeClass('btn-success');
+            //btn.addClass('btn-danger');
+            glyph.removeClass('glyphicon-play-circle');
+            glyph.addClass('glyphicon-remove-cirlce');
+            status.text('started');
+            status.removeClass('stopped');
+            status.addClass('started');
+            messagePanel.removeClass('hidden');
+            $('#message').focus();
 
             client.open('ws://localhost:' + port);
-            client.on.error = function (err) { console.log('error: ' + err.message) };
-            client.on.open = function () { console.log('client open')};
-            client.on.close = function () { console.log('client close')};
-            client.on.message = onMessage;
-            client.on.history = onHistory;
+            client.onopen = function () { console.log('client open')};
+            client.onclose = function () { console.log('client close')};
+            client.onerror = function (err) { console.log('error: ' + err.message) };
+            client.onmessage = onMessage;
+            client.onhistory = onHistory;
 
           } else {
             serverStarted = false;
             client.close();
-            btn.text('Start Server');
-            btn.removeClass('btn-danger');
-            btn.addClass('btn-success');
+            btn.text('Start');
+            //btn.removeClass('btn-danger');
+            //btn.addClass('btn-success');
+            glyph.removeClass('glyphicon-remove-circle');
+            glyph.addClass('glyphicon-play-circle');
+            status.text('stopped');
+            status.removeClass('started');
+            status.addClass('stopped');
+            messagePanel.addClass('hidden');
           }
         }
       });
@@ -171,7 +225,6 @@
     function onMessage(message) {
       var msg = message.messages[0];
       console.log(msg);
-      $("#message").val(msg);
 
       //insert info box to show server response time
       // todo get history function, which will return json like below
@@ -180,7 +233,6 @@
       $('#info').html(compiledTmpl);
     }
 
-
     $("form#formmessage").submit(function (e) {
       e.preventDefault();
 
@@ -188,33 +240,41 @@
       client.send(msg);
 
       // clear fields on each message send
-      $("message").val("");
+      $("#message").val("");
       $("#history").empty();
       pattern = '';
     });
 
     <!-------------------------- history ----------------------------->
 
-    $("#searchfilter").bind('input', function() {
+    $("#searchfilter").bind('input', function () {
       pattern = $(this).val();
       var filtered = client.historyFilter(pattern);
-      onHistory(filtered);
+
+      $('#info').html('');
+      showHistory(filtered);
     });
 
-    $("#btngethistory").click( function(){
+    $("#btngethistory").click(function () {
       client.sendHistoryCommand();
     });
 
     function onHistory(response) {
       if (!response || !response.messages) return;
 
-      var tmplMarkup = $('#tmpl-messages').html();
-      var compiledTmpl = _.template(tmplMarkup, { response : response });
-      $('#history').html(compiledTmpl);
+      showHistory(response);
 
       tmplMarkup = $('#tmpl-info').html();
-      compiledTmpl = _.template(tmplMarkup, { response : response });
+      compiledTmpl = _.template(tmplMarkup, { response: response });
       $('#info').html(compiledTmpl);
+    }
+
+    function showHistory(response) {
+      if (!response || !response.messages) return;
+
+      var tmplMarkup = $('#tmpl-messages').html();
+      var compiledTmpl = _.template(tmplMarkup, { response: response });
+      $('#history').html(compiledTmpl);
     }
 
   }); // $(document).ready()
@@ -223,7 +283,7 @@
 
 <script id="tmpl-info" type="text/template">
   <div class="alert alert-info">
-    <strong>{{= response.messages[0] }}, {{= response.responseTime }} ms</strong>
+    <strong>"{{= response.messages[0] }}", Took {{= response.responseTime }}ms</strong>
   </div>
 </script>
 
@@ -232,11 +292,11 @@
     {{ var i, message; }}
     {{ var messages = response.messages; }}
     {{ for (i = 0; i < messages.length; i++) { }}
-      {{ message = messages[i]; }}
+    {{ message = messages[i]; }}
 
-      <li class="list-group-item">
-        {{= message }}
-      </li>
+    <li class="list-group-item">
+      {{= message }}
+    </li>
 
     {{ } }}
   </ul>

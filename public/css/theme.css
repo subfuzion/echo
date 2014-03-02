@@ -24,3 +24,15 @@ body {
 .hidden {
   visibility: hidden;
 }
+
+.visible {
+  visibility: visible;
+}
+
+.started {
+  color: #5cb85c;
+}
+
+.stopped {
+  color: #d9534f;
+}

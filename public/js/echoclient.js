@@ -10,13 +10,11 @@ var EchoClient = function () {
   this.cache = null;
 
   // handlers
-  this.on = {
-    open: null,
-    close: null,
-    error: null,
-    message: null,
-    history: null
-  };
+  this.onopen = null;
+  this.onclose = null;
+  this.onerror = null;
+  this.onmessage = null;
+  this.onhistory = null;
 };
 
 
@@ -32,21 +30,21 @@ EchoClient.prototype.open = function(uri) {
   this.ws = new WebSocket(uri);
 
   function callHandler(event) {
-    var handler = self.on[event];
+    var handler = self['on' + event];
     if (typeof handler == 'function') {
       handler.apply(handler, [].slice.call(arguments, 1));
     }
   }
 
-  this.ws.addEventListener('open', function () {
+  this.ws.onopen = function () {
     callHandler('open');
-  });
+  };
 
-  this.ws.addEventListener('close', function() {
+  this.ws.onclose = function() {
     callHandler('close');
-  });
+  };
 
-  this.ws.addEventListener('message', function (messageEvent) {
+  this.ws.onmessage = function (messageEvent) {
     self.lastReceivedTimestamp = new Date().getTime();
 
     var message = JSON.parse(messageEvent.data);
@@ -64,11 +62,11 @@ EchoClient.prototype.open = function(uri) {
       self.cache = null;
       callHandler('message', message);
     }
-  });
+  };
 
-  this.ws.addEventListener('error', function (err) {
+  this.ws.onerror = function (err) {
     callHandler('error', err);
-  });
+  };
 };
 
 
