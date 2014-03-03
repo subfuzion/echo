@@ -15,42 +15,6 @@ var App = Backbone.Model.extend({
   initialize: function() {
     this.client = new EchoClient();
 
-    var self = this;
-
-    self.client.onopen = function() {
-      console.log('client open');
-      self.trigger('open');
-    };
-
-    self.client.onclose = function() {
-      console.log('client close');
-      // release handlers
-      self.client.onopen = null;
-      self.client.onclose = null;
-      self.client.onerror = null;
-      self.client.onmessage = null;
-      self.client.onhistory = null;
-
-      self.trigger('close');
-    };
-
-    self.client.onerror = function(err) {
-      console.log('client error', err);
-      self.trigger('error', err);
-    };
-
-    self.client.onmessage = function(response) {
-      console.log(response);
-      var er = new EchoResponse(response);
-      console.log(er);
-      self.trigger('message', new EchoResponse(response));
-    };
-
-    self.client.onhistory = function(response) {
-      console.log('client history');
-      self.trigger('history', new EchoResponse(response));
-    };
-
     // sync up with server status
     this.checkServerStatus();
   },
@@ -105,23 +69,74 @@ var App = Backbone.Model.extend({
       }
 
       console.log('success: ' + result.message);
-      self.set('serverState', /started/.test(result.message, "i")
-        ? 'started' : 'stopped');
+
+      var started = /started/.test(result.message, "i");
+
+      // once the server is started, open a client connection
+      if (started) {
+        self.set('serverState', 'started');
+        self.open();
+      } else {
+        self.set('serverState', 'stopped');
+        self.close();
+      }
     });
   },
 
   open: function() {
+    if (this.client.isOpen()) return;
+    console.log('client close');
+
+    var self = this;
+
+    self.client.onopen = function() {
+      console.log('client open');
+      self.trigger('open');
+    };
+
+    self.client.onclose = function() {
+      console.log('client close');
+      // release handlers
+      self.client.onopen = null;
+      self.client.onclose = null;
+      self.client.onerror = null;
+      self.client.onmessage = null;
+      self.client.onhistory = null;
+
+      self.trigger('close');
+    };
+
+    self.client.onerror = function(err) {
+      console.log('client error', err);
+      self.trigger('error', err);
+    };
+
+    self.client.onmessage = function(response) {
+      console.log(response);
+      var er = new EchoResponse(response);
+      self.trigger('message', er);
+    };
+
+    self.client.onhistory = function(response) {
+      console.log(response);
+      var er = new EchoResponse(response);
+      self.trigger('history', er);
+    };
+
     var uri = 'ws://' + this.get('host') + ':' + this.get('port');
     console.log('client open: ' + uri);
     this.client.open(uri);
   },
 
   close: function() {
+    if (this.client.isClosed()) return;
     console.log('client close');
     this.client.close();
   },
 
   send: function(message) {
+    if (!this.client.isOpen()) return;
+
     console.log('client send: ' + message);
     this.client.send(message);
   }

@@ -26,9 +26,3 @@ module.exports = {
   app: app
 };
 
-app.on('message', function(response) {
-  console.log('**************** message: ' + response.get('messages')[0]);
-});
-
-
-

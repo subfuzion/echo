@@ -5,7 +5,9 @@ module.exports = Backbone.View.extend({
     var self = this;
 
     this.render();
+
     this.listenTo(this.model, 'change:serverState', this.render);
+
     this.model.on('serverError', function(err) {
       self.serverError = err;
       self.render();

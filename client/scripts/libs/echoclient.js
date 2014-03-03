@@ -58,7 +58,8 @@ EchoClient.prototype.open = function(uri) {
 
     message.responseTime = self.lastReceivedTimestamp - self.lastSentTimestamp;
 
-    if (message.messages.length > 1) {
+    //if (message.messages.length > 1) {
+    if (message.type == 'history') {
       // this is a history message
       // cache it in case the user wants to filter
       // (no need for another round trip)

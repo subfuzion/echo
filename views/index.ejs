@@ -5,29 +5,12 @@
   <div id="message-panel"></div>
 </div>
 
-<!----------------------------------------------------------------------------->
-<!-- use CDN for testing and production -->
-<script
-    src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-<script
-    src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <!--script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.runtime.min.js"></script-->
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-<script
-    src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-
-<!-- unminified versions for debugging -->
-<!--
-<script src="/js/libs/jquery-2.1.0.js"></script>
-<script src="/js/libs/ootstrap-3.1.1.js"></script>
-<script src="/js/libs/handlebars.runtime-v1.3.0.js"></script>
-<script src="/js/libs/underscore-1.6.0.js"></script>
-<script src="/js/libs/backbone-1.1.2.js"></script>
--->
-
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
 <script src="/js/main.bundle.js"></script>
 
 <script>
@@ -185,6 +168,7 @@
 </script>
 
 <!-------------------------- templates ----------------------------->
+<!------------------------ server control ---------------------------->
 <script id="server-control-template" type="text/x-handlebars-template">
   <div class="row">
     <div class="col-md-4 col-md-offset-4">
@@ -214,83 +198,81 @@
 </script>
 
 
+<!------------------------ message panel ---------------------------->
 <script id="message-panel-template" type="text/x-handlebars-template">
   <div class="{{ hidden }}">
-    <!------------------------ send message ---------------------------->
-    <div class="row topmargin">
-      <div class="col-md-4 col-md-offset-4">
-        <div class="well">
-          <form role="form" id="formmessage">
-            <div class="form-group">
-              <label for="message">Message</label>
 
-              <div class="input-group">
-                <input type="text" class="form-control" id="message"
-                       placeholder="Send message...">
+    <div id="message-send"> </div>
+
+    <div id="message-receive"></div>
+
+    <div id="message-history"></div>
+
+  </div>
+</script>
+
+<!------------------------ send message ---------------------------->
+<script id="message-send-template" type="text/x-handlebars-template">
+  <div class="row topmargin">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="well">
+        <form role="form" id="formmessage">
+          <div class="form-group">
+            <label for="message">Message</label>
+
+            <div class="input-group">
+              <input type="text" class="form-control" id="message"
+                     placeholder="Send message...">
               <span class="input-group-btn">
                 <button type="submit" class="btn btn-default"
                         id="btnsendmessage">Send
                 </button>
               </span>
-              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
+</script>
 
-    <!----------------------- status messages --------------------------->
-    <div class="row">
-      <div class="col-md-4 col-md-offset-4" id="info">
+<!------------------------ receive message ---------------------------->
+<script id="message-receive-template" type="text/template">
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4" id="info">
+      <div class="alert alert-info">
+        <strong>{{ message }}</strong>
       </div>
     </div>
+  </div>
+</script>
 
-    <!------------------------ show history ---------------------------->
-    <div class="row">
-      <div class="col-md-4 col-md-offset-4">
-        <button type="button" class="btn btn-info" id="btngethistory">Show
-          History
-        </button>
-      </div>
+<!------------------------ message history ---------------------------->
+<script id="message-history-template" type="text/template">
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <button type="button" class="btn btn-info" id="btngethistory">Show
+        History
+      </button>
     </div>
-    <div class="row">
-      <div class="col-md-4 col-md-offset-4">
-        <h3>Messages</h3>
+  </div>
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <h3>Messages</h3>
 
-        <div class="input-group">
-          <input type="text" class="form-control search" id="searchfilter"
-                 placeholder="type here to search"/>
+      <div class="input-group">
+        <input type="text" class="form-control search" id="searchfilter"
+               placeholder="type here to search"/>
         <span class="input-group-addon"><i
               class="glyphicon glyphicon-search"></i></span>
-        </div>
-        <div id="history"></div>
+      </div>
+      <div id="history">
+        <ul class="list list-group">
+          <-- convert _ to handlebars -->
+        </ul>
       </div>
     </div>
-
   </div>
-</script>
-
-
-<script id="tmpl-info" type="text/template">
-  <div class="alert alert-info">
-    <strong>"{{= response.messages[0] }}", Took {{= response.responseTime
-      }}ms</strong>
-  </div>
-</script>
-
-<script id="tmpl-messages" type="text/template">
-  <ul class="list list-group">
-    {{ var i, message; }}
-    {{ var messages = response.messages; }}
-    {{ for (i = 0; i < messages.length; i++) { }}
-    {{ message = messages[i]; }}
-
-    <li class="list-group-item">
-      {{= message }}
-    </li>
-
-    {{ } }}
-  </ul>
 </script>
 
 
