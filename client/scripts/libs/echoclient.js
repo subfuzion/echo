@@ -1,6 +1,3 @@
-var EchoResponse = require('./models/EchoResponse');
-
-
 /**
  * A client for the echo.io server
  * @constructor
@@ -24,20 +21,27 @@ var EchoClient = module.exports = function () {
 EchoClient.prototype.open = function(uri) {
   var self = this;
 
-  if (this.isOpen()) {
-    console.log('already open on uri ' + this.uri);
-    return;
-  }
-
-  this.uri = uri;
-  this.ws = new WebSocket(uri);
-
   function callHandler(event) {
     var handler = self['on' + event];
     if (typeof handler == 'function') {
       handler.apply(handler, [].slice.call(arguments, 1));
     }
   }
+
+  if (this.isOpen()) {
+    console.log('error: already open on uri ' + this.uri);
+    callHandler('error', 'already open on uri ' + this.uri);
+    return;
+  }
+
+  if (!this.validatePort) {
+    console.log('error: invalid port: ' + this.port);
+    callHandler('error', 'invalid port');
+    return;
+  }
+
+  this.uri = uri;
+  this.ws = new WebSocket(uri);
 
   this.ws.onopen = function () {
     callHandler('open');

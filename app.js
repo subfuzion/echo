@@ -36,15 +36,13 @@ app.post('/api/v1/echoserver/:port/start', function (req, res) {
   if (echoserver && echoserver.port == port) {
     return res.json({
       status: 'error',
-      message: 'echo server already started on port ' + port
+      message: 'address in use ' + port
     });
   }
 
   echoserver = new echo.Server();
 
   echoserver.start(port, function(err) {
-    console.log('echo server started on port ' + port);
-
     var response;
 
     if (err) {
@@ -54,6 +52,7 @@ app.post('/api/v1/echoserver/:port/start', function (req, res) {
         message: err.message
       };
     } else {
+      console.log('echo server started on port ' + port);
       response = {
         status: 'ok',
         message: 'echo server started on port ' + port

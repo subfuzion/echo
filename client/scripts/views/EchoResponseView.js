@@ -1,4 +1,4 @@
-var EchoResponseView = Backbone.View.extend({
+module.exports = Backbone.View.extend({
   initialize: function() {
     this.render();
   },
@@ -9,5 +9,3 @@ var EchoResponseView = Backbone.View.extend({
     }
   }
 });
-
-module.exports = EchoResponseView;

@@ -11,12 +11,16 @@ body {
   margin-top: 15px;
 }
 
+.visible {
+  visibility: visible;
+}
+
 .hidden {
   visibility: hidden;
 }
 
-.visible {
-  visibility: visible;
+.collapse {
+  visibility: collapse;
 }
 
 .started {

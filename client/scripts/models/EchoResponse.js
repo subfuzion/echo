@@ -14,3 +14,5 @@ var EchoResponse = Backbone.Model.extend({
       : this.responseTime + 'ms';
   }
 });
+
+module.exports = EchoResponse;
