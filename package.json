@@ -4,10 +4,10 @@
   "description": "A web app to send messages over WebSockets using echo.io",
   "scripts": {
     "start": "node app",
-    "build-debug": "browserify -d -r ./client/scripts/echo.js:echo > public/js/echo.bundle.js",
-    "build-min": "browserify -r ./client/scripts/echo.js:echo | uglifyjs > public/js/echo.bundle.min.js",
+    "build-debug": "browserify -t hbsfy -d -r ./client/scripts/main.js:echo > public/js/main.bundle.js",
+    "build-min": "browserify -t hbsfy -r ./client/scripts/main.js:echo | uglifyjs > public/js/main.bundle.min.js",
     "build": "npm run build-debug && npm run build-min",
-    "watch": "watchify -d -r ./client/scripts/echo.js:echo -o public/js/echo.bundle.js"
+    "watch": "watchify -t hbsfy -d -r ./client/scripts/main.js:echo -o public/js/main.bundle.js"
   },
   "repository": {
     "type": "git",
