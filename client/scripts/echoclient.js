@@ -1,3 +1,6 @@
+var EchoResponse = require('./models/EchoResponse');
+
+
 /**
  * A client for the echo.io server
  * @constructor
