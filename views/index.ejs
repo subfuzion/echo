@@ -1,7 +1,9 @@
 <% include header %>
+
+<!----------------------------------------------------------------------------->
 <div class="container" role="main">
 
-  <!------------------------ start/stop server ---------------------------->
+  <!------------------------ start/stop server =---------------------------->
   <div class="row">
     <div class="col-md-4 col-md-offset-4">
       <div class="well">
@@ -30,7 +32,9 @@
     </div>
   </div>
 
+  <!------------------------ message panel ----------------------------->
   <div id="message-panel" class="hidden">
+
     <!------------------------ send message ---------------------------->
     <div class="row topmargin">
       <div class="col-md-4 col-md-offset-4">
@@ -54,7 +58,7 @@
       </div>
     </div>
 
-    <!------------------------ status messages ---------------------------->
+    <!----------------------- status messages --------------------------->
     <div class="row">
       <div class="col-md-4 col-md-offset-4" id="info">
       </div>
@@ -85,21 +89,21 @@
   </div>
 </div>
 
-<!-- /container -->
-
-<script
-    src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script
-    src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
-<script src="/js/underscore.js"></script>
-<script src="/js/backbone.js"></script>
-<script src="/js/echoclient.js"></script>
+<!----------------------------------------------------------------------------->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+<script src="/js/echo.bundle.js"></script>
 
 <script>
 
   $(document).ready(function () {
+
+    var echo = require('echo');
+    var client = new echo.EchoClient();
+
     var serverStarted = false;
-    var client = new EchoClient();
     var pattern = '';
 
 
@@ -221,7 +225,6 @@
 
 
     <!-------------------------- messages ----------------------------->
-
     function onMessage(message) {
       var msg = message.messages[0];
       console.log(msg);
@@ -246,7 +249,6 @@
     });
 
     <!-------------------------- history ----------------------------->
-
     $("#searchfilter").bind('input', function () {
       pattern = $(this).val();
       var filtered = client.historyFilter(pattern);
@@ -281,6 +283,7 @@
 
 </script>
 
+<!-------------------------- templates ----------------------------->
 <script id="tmpl-info" type="text/template">
   <div class="alert alert-info">
     <strong>"{{= response.messages[0] }}", Took {{= response.responseTime }}ms</strong>
@@ -302,5 +305,7 @@
   </ul>
 </script>
 
+
+<!----------------------------------------------------------------------------->
 <% include footer %>
 

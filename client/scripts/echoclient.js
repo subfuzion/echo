@@ -2,7 +2,7 @@
  * A client for the echo.io server
  * @constructor
  */
-var EchoClient = function () {
+var EchoClient = module.exports = function () {
   this.uri = null;
   this.ws = null;
   this.lastSentTimestamp = null;
