@@ -266,9 +266,14 @@
         <span class="input-group-addon"><i
               class="glyphicon glyphicon-search"></i></span>
       </div>
+
       <div id="history">
         <ul class="list list-group">
-          <-- convert _ to handlebars -->
+          {{#each messages}}
+          <li class="list-group-item">
+            {{this}}
+          </li>
+          {{/each}}
         </ul>
       </div>
     </div>

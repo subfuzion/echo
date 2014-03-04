@@ -15,7 +15,8 @@ module.exports = Backbone.View.extend({
     });
 
     this.historyView = new MessageHistoryView({
-      model: this.model
+      model: this.model,
+      el: '#message-history'
     });
 
     this.render();
@@ -39,6 +40,6 @@ module.exports = Backbone.View.extend({
     this.historyView.setElement(this.$('#message-history')).render();
 
     return this;
-  },
+  }
 
 });

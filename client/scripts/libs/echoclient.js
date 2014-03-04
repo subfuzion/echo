@@ -113,7 +113,7 @@ EchoClient.prototype.sendHistoryCommand = function () {
 
 
 EchoClient.prototype.historyFilter = function(pattern) {
-  if (!this.cache) return [];
+  if (!this.cache || !this.isOpen()) return [];
   if (!pattern) return this.cache;
 
   var regex = new RegExp(pattern, "i");

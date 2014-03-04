@@ -30,13 +30,15 @@ var App = Backbone.Model.extend({
 
     $.getJSON('/api/v1/echoserver/' + this.get('port'), function (result) {
       if (result && result.status == 'error') {
-        console.log(result);
         self.trigger('serverError', result.message);
         return;
       }
 
       if (result && result.status == 'OK' && /started/.test(result.message)) {
         self.set('serverState', 'started');
+
+        // go ahead and open a client if the server is listening
+        self.open();
       } else {
         self.set('serverState', 'stopped');
       }
@@ -63,12 +65,9 @@ var App = Backbone.Model.extend({
 
     $.post('/api/v1/echoserver/' + port + '/' + command, function (result) {
       if (result && result.status == 'error') {
-        console.log(result);
         self.trigger('serverError', result.message);
         return;
       }
-
-      console.log('success: ' + result.message);
 
       var started = /started/.test(result.message, "i");
 
@@ -85,17 +84,14 @@ var App = Backbone.Model.extend({
 
   open: function() {
     if (this.client.isOpen()) return;
-    console.log('client close');
 
     var self = this;
 
     self.client.onopen = function() {
-      console.log('client open');
       self.trigger('open');
     };
 
     self.client.onclose = function() {
-      console.log('client close');
       // release handlers
       self.client.onopen = null;
       self.client.onclose = null;
@@ -107,38 +103,41 @@ var App = Backbone.Model.extend({
     };
 
     self.client.onerror = function(err) {
-      console.log('client error', err);
       self.trigger('error', err);
     };
 
     self.client.onmessage = function(response) {
-      console.log(response);
       var er = new EchoResponse(response);
       self.trigger('message', er);
     };
 
     self.client.onhistory = function(response) {
-      console.log(response);
       var er = new EchoResponse(response);
       self.trigger('history', er);
     };
 
     var uri = 'ws://' + this.get('host') + ':' + this.get('port');
-    console.log('client open: ' + uri);
     this.client.open(uri);
   },
 
   close: function() {
     if (this.client.isClosed()) return;
-    console.log('client close');
     this.client.close();
   },
 
   send: function(message) {
     if (!this.client.isOpen()) return;
-
-    console.log('client send: ' + message);
     this.client.send(message);
+  },
+
+  sendHistoryCommand: function() {
+    // just a shortcut for entering '[HISTORY]'
+    if (!this.client.isOpen()) return;
+    this.client.sendHistoryCommand();
+  },
+
+  historyFilter: function(pattern) {
+    return this.client.historyFilter(pattern);
   }
 });
 
