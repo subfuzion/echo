@@ -33,7 +33,7 @@ module.exports = Backbone.View.extend({
       ? 'started (port ' + port + ')'
       : serverState;
     var error = this.error ? ' Error: ' + this.error : null;
-    var serverErrorClass = serverError ? 'visible' : 'hidden';
+    var serverErrorClass = error ? 'visible' : 'hidden';
 
     var args = {
       stateClass: serverState,
@@ -58,7 +58,7 @@ module.exports = Backbone.View.extend({
 
   togglestart: function() {
     // clear previous error message
-    this.serverError = null;
+    this.error = null;
     $('#server-error').html('');
 
     var port = this.port();
