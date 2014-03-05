@@ -116,7 +116,7 @@ var App = Backbone.Model.extend({
       console.log('client error:');
       console.log(err);
       console.log('-----');
-      self.trigger('error', err);
+      self.trigger('error', err.message);
     };
 
     self.client.onmessage = function(response) {

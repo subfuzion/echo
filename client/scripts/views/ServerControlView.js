@@ -9,7 +9,12 @@ module.exports = Backbone.View.extend({
     this.listenTo(this.model, 'change:serverState', this.render);
 
     this.model.on('serverError', function(err) {
-      self.serverError = err;
+      self.error = err;
+      self.render();
+    });
+
+    this.model.on('error', function(err) {
+      self.error = err;
       self.render();
     })
   },
@@ -27,7 +32,7 @@ module.exports = Backbone.View.extend({
     var serverStateText = serverState == 'started'
       ? 'started (port ' + port + ')'
       : serverState;
-    var serverError = this.serverError ? ' Error: ' + this.serverError : null;
+    var error = this.error ? ' Error: ' + this.error : null;
     var serverErrorClass = serverError ? 'visible' : 'hidden';
 
     var args = {
@@ -37,7 +42,7 @@ module.exports = Backbone.View.extend({
       inputVisibility: serverState == 'started' ? 'collapse' : 'visible',
       serverCommand: serverState == 'started' ? 'Stop' : 'Start',
       serverErrorClass: serverErrorClass,
-      serverError: serverError
+      serverError: error
     };
 
     this.$el.html(this.template(args));
