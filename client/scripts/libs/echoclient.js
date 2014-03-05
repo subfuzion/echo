@@ -41,7 +41,12 @@ EchoClient.prototype.open = function(uri) {
   }
 
   this.uri = uri;
-  this.ws = new WebSocket(uri);
+
+  try {
+    this.ws = new WebSocket(uri);
+  } catch (err) {
+    callHandler('error', err);
+  }
 
   this.ws.onopen = function () {
     callHandler('open');
