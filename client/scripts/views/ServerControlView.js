@@ -18,8 +18,8 @@ module.exports = Backbone.View.extend({
     'click #btnserver': 'togglestart'
   },
 
-  template: Handlebars.compile($('#server-control-template').html()),
-  //template: require('./templates/server-control.hbs'),
+  //template: Handlebars.compile($('#server-control-template').html()),
+  template: require('./templates/server-control.hbs'),
 
   render: function() {
     var port = this.model.get('port');

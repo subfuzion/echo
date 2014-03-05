@@ -16,7 +16,7 @@ module.exports = Backbone.View.extend({
     'click #btngethistory': 'getHistory'
   },
 
-  template: Handlebars.compile($('#message-history-template').html()),
+  template: require('./templates/message-history.hbs'),
 
   render: function() {
     var response = arguments[0] || [];

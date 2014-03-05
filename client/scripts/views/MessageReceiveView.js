@@ -11,7 +11,7 @@ module.exports = Backbone.View.extend({
     })
   },
 
-  template: Handlebars.compile($('#message-receive-template').html()),
+  template: require('./templates/message-receive.hbs'),
 
   render: function() {
     var response = arguments[0];

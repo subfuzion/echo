@@ -24,7 +24,7 @@ module.exports = Backbone.View.extend({
     this.listenTo(this.model, 'change:serverState', this.render);
   },
 
-  template: Handlebars.compile($('#message-panel-template').html()),
+  template: require('./templates/message-panel.hbs'),
 
   render: function () {
     var serverState = this.model.get('serverState');

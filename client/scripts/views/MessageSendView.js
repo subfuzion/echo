@@ -8,7 +8,7 @@ module.exports = Backbone.View.extend({
     'input #message': 'toggleEnableButton'
   },
 
-  template: Handlebars.compile($('#message-send-template').html()),
+  template: require('./templates/message-send.hbs'),
 
   render: function() {
     var args = {
