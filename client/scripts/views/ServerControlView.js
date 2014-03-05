@@ -19,6 +19,7 @@ module.exports = Backbone.View.extend({
   },
 
   template: Handlebars.compile($('#server-control-template').html()),
+  //template: require('./templates/server-control.hbs'),
 
   render: function() {
     var port = this.model.get('port');
