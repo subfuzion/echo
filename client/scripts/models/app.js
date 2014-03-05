@@ -14,9 +14,6 @@ var App = Backbone.Model.extend({
 
   initialize: function() {
     this.client = new EchoClient();
-
-    // sync up with server status
-    this.checkServerStatus();
   },
 
   validate: function(attrs) {
@@ -58,6 +55,16 @@ var App = Backbone.Model.extend({
   sendServerCommand: function(command) {
     if (!this.isValid()) return;
 
+    if (command == 'start' && this.serverState == 'started') {
+      console.log('server already started');
+      return;
+    }
+
+    if (command == 'stop' && this.serverState == 'stopped') {
+      console.log('server already stopped');
+      return;
+    }
+
     this.set('serverError', '');
 
     var port = this.get('port');
@@ -73,7 +80,6 @@ var App = Backbone.Model.extend({
 
       // once the server is started, open a client connection
       if (started) {
-        self.set('serverState', 'started');
         self.open();
       } else {
         self.set('serverState', 'stopped');
@@ -88,10 +94,13 @@ var App = Backbone.Model.extend({
     var self = this;
 
     self.client.onopen = function() {
+      console.log('connection is open');
+      self.set('serverState', 'started');
       self.trigger('open');
     };
 
     self.client.onclose = function() {
+      console.log('connection is closed');
       // release handlers
       self.client.onopen = null;
       self.client.onclose = null;
@@ -103,6 +112,10 @@ var App = Backbone.Model.extend({
     };
 
     self.client.onerror = function(err) {
+      console.log('-----');
+      console.log('client error:');
+      console.log(err);
+      console.log('-----');
       self.trigger('error', err);
     };
 
@@ -117,6 +130,7 @@ var App = Backbone.Model.extend({
     };
 
     var uri = 'ws://' + this.get('host') + ':' + this.get('port');
+    console.log('opening connection to ' + uri);
     this.client.open(uri);
   },
 

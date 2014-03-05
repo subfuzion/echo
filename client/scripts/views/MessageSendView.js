@@ -16,6 +16,8 @@ module.exports = Backbone.View.extend({
 
     this.$el.html(this.template(args));
 
+    $('#message').focus();
+
     return this;
   },
 

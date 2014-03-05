@@ -3,7 +3,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , echo = require('echo.io')
-  , echoserver = null
+  , echoservers = {}  // map: port => server
   ;
 
 var app = express();
@@ -33,61 +33,65 @@ app.get('/', routes.index);
 app.post('/api/v1/echoserver/:port/start', function (req, res) {
   var port = parseInt(req.params.port, 10);
 
-  if (echoserver && echoserver.port == port) {
+  if (isPortInUse(port)) {
     return res.json({
       status: 'error',
       message: 'address in use ' + port
     });
   }
 
-  echoserver = new echo.Server();
+  var echoserver = new echo.Server();
 
-  echoserver.start(port, function(err) {
-    var response;
+  echoserver.on('error', function(err) {
+    console.log('error: ' + err.message);
 
-    if (err) {
-      console.log('error: ' + err.message);
-      response = {
-        status: 'error',
-        message: err.message
-      };
-    } else {
-      console.log('echo server started on port ' + port);
-      response = {
-        status: 'ok',
-        message: 'echo server started on port ' + port
-      };
-    }
-
-    res.json(response);
+    res.json({
+      status: 'error',
+      message: err.message
+    });
   });
+
+  echoserver.on('listening', function(port_) {
+    console.log('echo server v0.0.7 started on port ' + port);
+
+    echoservers[port_] = echoserver;
+
+    res.json({
+      status: 'ok',
+      message: 'echo server started on port ' + port_
+    });
+  });
+
+  echoserver.on('connection', function(ws) {
+    var host = ws.upgradeReq.headers.host;
+    var port = host.split(':')[1];
+
+    console.log('echo connection opened on port ' + port);
+  });
+
+  echoserver.start(port);
 });
 
 app.post('/api/v1/echoserver/:port/stop', function (req, res) {
   var port = parseInt(req.params.port, 10);
 
-  if (!echoserver) {
+  if (!isPortInUse(port)) {
     return res.json({
       status: 'error',
       message: 'no echo server listening on port ' + port
     });
   }
 
-  if (echoserver.port != port) {
-    return res.json({
-      status: 'error',
-      message: 'echo server is listening on another port: ' + port
-    });
-  }
-
   var response;
 
   try {
-    echoserver.close();
+    echoservers[port].close();
+
     response = {
       status: 'OK',
       message: 'echo server stopped on port ' + port
     };
+
   } catch (err) {
     response = {
       status: 'error',
@@ -95,32 +99,32 @@ app.post('/api/v1/echoserver/:port/stop', function (req, res) {
     };
   }
 
-  echoserver = null;
+  echoservers[port] = null;
+
   res.json(response);
 });
 
 app.get('/api/v1/echoserver/:port', function (req, res) {
   var port = parseInt(req.params.port, 10);
+  var response;
 
-  if (!echoserver) {
-    return res.json({
+  if (isPortInUse(port)) {
+    response = {
+      status: 'OK',
+      message: 'started'
+    };
+  } else {
+    response = {
       status: 'OK',
       message: 'stopped'
-    });
+    };
   }
 
-  if (echoserver.port != port) {
-    return res.json({
-      status: 'error',
-      message: 'echo server is listening on a different port: ' + port
-    });
-  }
-
-  return res.json({
-    status: 'OK',
-    message: 'started'
-  });
+  return res.json(response);
 });
 
+// helpers
 
-
+function isPortInUse(port) {
+  return echoservers[port] instanceof echo.Server;
+}

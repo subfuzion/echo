@@ -1,9 +1,9 @@
 {
   "name": "echo",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A web app to send messages over WebSockets using echo.io",
   "scripts": {
-    "start": "node app",
+    "start": "npm run build && node app",
     "build-debug": "browserify -t hbsfy -d -r ./client/scripts/main.js:echo > public/js/main.bundle.js",
     "build-min": "browserify -t hbsfy -r ./client/scripts/main.js:echo | uglifyjs > public/js/main.bundle.min.js",
     "build": "npm run build-debug && npm run build-min",
@@ -22,8 +22,8 @@
   "dependencies": {
     "express": "3.1.0",
     "ejs": "*",
-    "echo.io": "git://github.com/tonypujals/echo.io.git#v0.0.6",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "echo.io": "git://github.com/tonypujals/echo.io#v0.0.7"
   },
   "devDependencies": {
     "browserify": "^3.31.2",

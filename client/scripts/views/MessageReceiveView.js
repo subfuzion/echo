@@ -4,8 +4,6 @@ module.exports = Backbone.View.extend({
   initialize: function() {
     var self = this;
 
-    this.render();
-
     this.model.on('message history', function(response) {
       self.render(response);
     })
@@ -14,6 +12,7 @@ module.exports = Backbone.View.extend({
   template: require('./templates/message-receive.hbs'),
 
   render: function() {
+    // only render when an EchoResponse is provided
     var response = arguments[0];
     if (!(response instanceof EchoResponse)) return;
 

@@ -1,5 +1,5 @@
 module.exports = {
-  start: function () {
+  start: function (host) {
     // models
     var App = require('./models/App')
       ;
@@ -10,7 +10,7 @@ module.exports = {
       ;
 
 
-    var app = new App();
+    var app = new App({ host: host });
 
     // wire up views
     // just creating them works since they wire

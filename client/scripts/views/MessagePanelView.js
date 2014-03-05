@@ -27,6 +27,7 @@ module.exports = Backbone.View.extend({
   template: require('./templates/message-panel.hbs'),
 
   render: function () {
+
     var serverState = this.model.get('serverState');
 
     var args = {
@@ -38,6 +39,8 @@ module.exports = Backbone.View.extend({
     this.sendView.setElement(this.$('#message-send')).render();
     this.receiveView.setElement(this.$('#message-receive')).render();
     this.historyView.setElement(this.$('#message-history')).render();
+
+    $('#message').focus();
 
     return this;
   }
