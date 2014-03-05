@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "description": "A web app to send messages over WebSockets using echo.io",
   "scripts": {
-    "start": "npm run build && node app",
+    "start": "node app",
     "build-debug": "browserify -t hbsfy -d -r ./client/scripts/main.js:echo > public/js/main.bundle.js",
     "build-min": "browserify -t hbsfy -r ./client/scripts/main.js:echo | uglifyjs > public/js/main.bundle.min.js",
     "build": "npm run build-debug && npm run build-min",
