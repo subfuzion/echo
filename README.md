@@ -17,7 +17,7 @@ You can test a live version of **echo** at the following link:
 
 http://echo.nodester.io
 
-
+![demo screenshot](https://raw.github.com/tonypujals/echo/master/echo-screenshot.png "demo screenshot")
 
 
 Installation
