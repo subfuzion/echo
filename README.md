@@ -60,7 +60,7 @@ It serves the user interface for `/` requests, and provides the following API to
 
 `POST /api/v1/echoserver/:port/start`
 
-Start a WebSocket server at `:port`. The acceptable port range is 1024-65535, although there are a number of ports in that range are restricted or may already be in use on the host.
+Start a WebSocket server at `:port`. The acceptable port range is 1024-65535, although a number of ports in that range are restricted or may already be in use on the host.
 
 The server will return a JSON response indicati g success or an error.
 
@@ -166,7 +166,7 @@ Executing the following at the command line will cause both a minified and a deb
 
 The result will be a `main.bundle.js` and `main.bundle.min.js` files output to the `public/js` directory.
 
-The options specified for browserify include a transform plugin called [hbsfy](https://www.npmjs.org/package/hbsfy). This browserify plugin precompiles the Handlebars templates stored in `.hbs` files under the `client/scripts/views/templates` directory. This pre-compilation step saves CPU cycles for the browser client and also allows for a smaller Handlebars download since only the template runtime is needed, and not the template compiler. The views can simply `require` the templates like any other modules, since after the pre-compilaton step, browserify adds them to the generated bundle also.
+The options specified for browserify include a transform plugin called [hbsfy](https://www.npmjs.org/package/hbsfy). The plugin precompiles the Handlebars templates stored in `.hbs` files under the `client/scripts/views/templates` directory. This pre-compilation step saves CPU cycles for the browser client and also allows for a smaller Handlebars download since only the template runtime is needed, and not the template compiler. The views can simply `require` the templates like any other modules, since after the pre-compilaton step, browserify adds them to the generated bundle also.
 
 As mentioned in a previous section, when editing the client script files, it is helpful to run the the [watchify](https://github.com/substack/watchify) script:
 
