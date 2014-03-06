@@ -9,7 +9,11 @@ module.exports = Backbone.View.extend({
     this.listenTo(this.model, 'change:serverState', function() {
       var serverState = this.model.get('serverState');
       console.log('change in server state => ' + serverState);
+
       self.render();
+
+      // open or close the web socket client as appropriate
+      // in response to web socket server state change notification
       if (serverState == 'started') {
         console.log('open request');
         this.model.open();
@@ -34,7 +38,6 @@ module.exports = Backbone.View.extend({
     'click #btnserver': 'togglestart'
   },
 
-  //template: Handlebars.compile($('#server-control-template').html()),
   template: require('./templates/server-control.hbs'),
 
   render: function() {

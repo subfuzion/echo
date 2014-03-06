@@ -19,8 +19,6 @@ module.exports = Backbone.View.extend({
       el: '#message-history'
     });
 
-    // this.listenTo(this.model, 'change:serverState', this.render);
-
     var self = this;
     this.model.on('open close', function() {
       self.render();
@@ -30,13 +28,9 @@ module.exports = Backbone.View.extend({
   template: require('./templates/message-panel.hbs'),
 
   render: function () {
-
-    // var serverState = 'started'; // this.model.get('isOpen');
-    console.log(this.model);
     var serverState = this.model.get('isOpen');
 
     var args = {
-      //hidden: serverState == 'started' ? 'visible' : 'collapse'
       hidden: serverState ? 'visible' : 'collapse'
     };
 

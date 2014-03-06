@@ -14,7 +14,7 @@ module.exports = {
 
     // wire up views
     // just creating them works since they wire
-    // up the page and render when initialized
+    // up the page and render upon initializion
 
     new ServerControlView({
       model: app,

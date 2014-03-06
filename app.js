@@ -3,7 +3,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , echo = require('echo.io')
-  , echoservers = {}// map: port => { server: rerver, uri: uri }
+  , echoservers = {}  // map: port => { server: server, uri: uri }
   ;
 
 var app = express();
@@ -49,7 +49,8 @@ app.post('/api/v1/echoserver/:port/start', function (req, res) {
     clearPort(port);
 
     // don't try to return error to client if it happens
-    // after the listening event, which returns ok
+    // *after* the 'listening' event, which already returned ok
+    // and closed the response stream
     if (!responseSent) {
       res.json({
         status: 'error',
@@ -139,6 +140,9 @@ app.get('/api/v1/echoserver/:port', function (req, res) {
 });
 
 // helpers
+// pretty simplistic logic to map ports to a "channel", which
+// is an association between a web socket server and single client.
+// the client is represented by the connection uri.
 
 function isPortInUse(port) {
   var channel = echoservers[port];

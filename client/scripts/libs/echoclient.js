@@ -135,6 +135,7 @@ EchoClient.prototype.historyFilter = function(pattern) {
 };
 
 
+// non-instance method
 EchoClient.validatePort = function(port) {
   return port >= 1024 && port < 65535;
 };

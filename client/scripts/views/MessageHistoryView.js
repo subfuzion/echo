@@ -1,4 +1,4 @@
-var EchoResponse = require('./../models/EchoResponse');
+var EchoResponse = require('../models/EchoResponse');
 
 module.exports = Backbone.View.extend({
   initialize: function(options) {
@@ -23,6 +23,7 @@ module.exports = Backbone.View.extend({
 
     // the check is because cached messages from the server aren't
     // wrapped in EchoResponse backbone objects, just pojos
+    // TODO would probably be good to wrap both in a backbone collection
     var messages = response instanceof EchoResponse
       ? response.toJSON().messages
       : response.messages;

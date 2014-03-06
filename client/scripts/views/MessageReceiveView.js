@@ -1,4 +1,4 @@
-var EchoResponse = require('./../models/EchoResponse');
+var EchoResponse = require('../models/EchoResponse');
 
 module.exports = Backbone.View.extend({
   initialize: function() {

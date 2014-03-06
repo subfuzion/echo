@@ -21,24 +21,23 @@ var App = Backbone.Model.extend({
     }
   },
 
-  /*
-  checkServerStatus: function() {
+  // this could be used if we wanted the ui to indicate port
+  // status beforehand
+  checkServerStatus: function(callback) {
     var self = this;
 
     $.getJSON('/api/v1/echoserver/' + this.get('port'), function (result) {
-      if (result && result.status == 'error') {
-        self.trigger('serverError', result.message);
-        return;
+      if (result.status == 'error') {
+        return callback(result.message);
       }
 
-      if (result && result.status == 'OK' && /started/.test(result.message)) {
-        self.set('serverState', 'started');
+      if (result.status == 'OK' && /started/.test(result.message)) {
+        callback(null, 'started');
       } else {
-        self.set('serverState', 'stopped');
+        callback(null, 'stopped');
       }
     });
   },
-  */
 
   startServer: function() {
     this.sendServerCommand('start');
@@ -49,6 +48,9 @@ var App = Backbone.Model.extend({
   },
 
   sendServerCommand: function(command) {
+    // clear last error
+    this.set('serverError', null);
+
     if (!this.isValid()) {
       console.log('sendServerCommand state not valid for command: ' + command);
       return;
@@ -64,24 +66,36 @@ var App = Backbone.Model.extend({
       return;
     }
 
-    this.set('serverError', '');
-
     var port = this.get('port');
+
     var self = this;
 
     $.post('/api/v1/echoserver/' + port + '/' + command, function (result) {
       if (result && result.status == 'error') {
         if (command == 'stop') {
+          // for whatever reason we got an error result, we can still
+          // safely assume that the server is in fact stopped, so just
+          // make sure the ui gets updated and return
           self.set('serverState', 'stopped');
           return;
         }
+
+        // otherwise trigger an error event
         self.trigger('serverError', result.message);
         return;
       }
 
+      // HACK: a bit brittle; ideally we can add another field to the
+      // protocol response so that we know exactly what the action was,
+      // but for now we know that the response only mentions
+      // 'started' when the server has been started; it mentions
+      // 'stopped' when the server is stopped.
       var started = /started/.test(result.message, "i");
 
-      // once the server is started, open a client connection
+      // once the web socket server is started on the request port,
+      // we want to connect to it; we could open the connection here,
+      // but I chose to just have the view react to the state change
+      // and then request this model to open the connection
       if (started) {
         console.log('server started on port ' + self.get('port'));
         self.set('serverState', 'started');
@@ -93,8 +107,7 @@ var App = Backbone.Model.extend({
   },
 
   open: function() {
-    //if (this.client.isOpen()) return;
-    if (this.client != null) {
+    if (this.get('isOpen')) {
       console.log('error: client already open');
       return;
     }
@@ -125,10 +138,8 @@ var App = Backbone.Model.extend({
     };
 
     self.client.onerror = function(err) {
-      console.log('-----');
       console.log('client error:');
       console.log(err);
-      console.log('-----');
 
       // release handlers
       self.client.onopen = null;
@@ -158,24 +169,24 @@ var App = Backbone.Model.extend({
   },
 
   close: function() {
-    if (this.client == null || this.client.isClosed()) return;
+    if (this.get('isOpen')) return;
     console.log('close connection to ' + this.get('port'));
     this.client.close();
   },
 
   send: function(message) {
-    if (this.client && !this.client.isOpen()) return;
+    if (!this.get('isOpen')) return;
     this.client.send(message);
   },
 
   sendHistoryCommand: function() {
     // just a shortcut for entering '[HISTORY]'
-    if (this.client && !this.client.isOpen()) return;
+    if (!this.get('isOpen')) return;
     this.client.sendHistoryCommand();
   },
 
   historyFilter: function(pattern) {
-    if (!this.client) return [];
+    if (!this.get('isOpen')) return [];
     return this.client.historyFilter(pattern);
   }
 });
