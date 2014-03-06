@@ -19,19 +19,25 @@ module.exports = Backbone.View.extend({
       el: '#message-history'
     });
 
-    this.render();
+    // this.listenTo(this.model, 'change:serverState', this.render);
 
-    this.listenTo(this.model, 'change:serverState', this.render);
+    var self = this;
+    this.model.on('open close', function() {
+      self.render();
+    })
   },
 
   template: require('./templates/message-panel.hbs'),
 
   render: function () {
 
-    var serverState = this.model.get('serverState');
+    // var serverState = 'started'; // this.model.get('isOpen');
+    console.log(this.model);
+    var serverState = this.model.get('isOpen');
 
     var args = {
-      hidden: serverState == 'started' ? 'visible' : 'collapse'
+      //hidden: serverState == 'started' ? 'visible' : 'collapse'
+      hidden: serverState ? 'visible' : 'collapse'
     };
 
     this.$el.html(this.template(args));

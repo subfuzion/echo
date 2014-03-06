@@ -8,21 +8,20 @@ var EchoClient = require('./../libs/echoclient')
 var App = Backbone.Model.extend({
   defaults: {
     host: 'localhost',
-    port: 5555,
     serverState: 'stopped'
   },
 
-  /*
   initialize: function() {
   },
-  */
 
   validate: function(attrs) {
     if (!EchoClient.validatePort(attrs.port)) {
+      console.log('port not valid: ' + attrs.port);
       return 'invalid port';
     }
   },
 
+  /*
   checkServerStatus: function() {
     var self = this;
 
@@ -34,27 +33,26 @@ var App = Backbone.Model.extend({
 
       if (result && result.status == 'OK' && /started/.test(result.message)) {
         self.set('serverState', 'started');
-
-        // go ahead and open a client if the server is listening
-        self.open();
       } else {
         self.set('serverState', 'stopped');
       }
     });
   },
+  */
 
   startServer: function() {
-    if (!this.isValid()) return;
     this.sendServerCommand('start');
   },
 
   stopServer: function() {
-    if (!this.isValid()) return;
     this.sendServerCommand('stop');
   },
 
   sendServerCommand: function(command) {
-    if (!this.isValid()) return;
+    if (!this.isValid()) {
+      console.log('sendServerCommand state not valid for command: ' + command);
+      return;
+    }
 
     if (command == 'start' && this.serverState == 'started') {
       console.log('server already started');
@@ -73,6 +71,10 @@ var App = Backbone.Model.extend({
 
     $.post('/api/v1/echoserver/' + port + '/' + command, function (result) {
       if (result && result.status == 'error') {
+        if (command == 'stop') {
+          self.set('serverState', 'stopped');
+          return;
+        }
         self.trigger('serverError', result.message);
         return;
       }
@@ -81,10 +83,11 @@ var App = Backbone.Model.extend({
 
       // once the server is started, open a client connection
       if (started) {
-        self.open();
+        console.log('server started on port ' + self.get('port'));
+        self.set('serverState', 'started');
       } else {
+        console.log('server stopped on port ' + self.get('port'));
         self.set('serverState', 'stopped');
-        self.close();
       }
     });
   },
@@ -95,6 +98,7 @@ var App = Backbone.Model.extend({
       console.log('error: client already open');
       return;
     }
+    console.log('open connection to ' + this.get('port'));
 
     this.client = new EchoClient();
 
@@ -102,7 +106,7 @@ var App = Backbone.Model.extend({
 
     self.client.onopen = function() {
       console.log('connection is open');
-      self.set('serverState', 'started');
+      self.set('isOpen', true);
       self.trigger('open');
     };
 
@@ -116,6 +120,7 @@ var App = Backbone.Model.extend({
       self.client.onhistory = null;
       self.client = null;
 
+      self.set('isOpen', false);
       self.trigger('close');
     };
 
@@ -133,6 +138,7 @@ var App = Backbone.Model.extend({
       self.client.onhistory = null;
       self.client = null;
 
+      self.set('isOpen', false);
       self.trigger('error', err.message);
     };
 
@@ -153,6 +159,7 @@ var App = Backbone.Model.extend({
 
   close: function() {
     if (this.client == null || this.client.isClosed()) return;
+    console.log('close connection to ' + this.get('port'));
     this.client.close();
   },
 

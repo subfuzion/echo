@@ -116,8 +116,6 @@ app.post('/api/v1/echoserver/:port/stop', function (req, res) {
     };
   }
 
-  echoservers[port] = null;
-
   res.json(response);
 });
 
@@ -159,6 +157,7 @@ function clearPort(port) {
   try {
     var channel = echoservers[port];
     if (channel && channel.server) {
+      console.log('stopping server on port ' + port);
       channel.server.close();
       channel.server = null;
     }

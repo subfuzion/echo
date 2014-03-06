@@ -39,7 +39,9 @@ module.exports = Backbone.View.extend({
     }
   },
 
-  sendMessage: function() {
+  sendMessage: function(event) {
+    event.preventDefault();
+
     var message = this.messageText();
     if (message) this.model.send(message);
     this.messageText('');

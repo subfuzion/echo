@@ -6,7 +6,18 @@ module.exports = Backbone.View.extend({
 
     this.render();
 
-    this.listenTo(this.model, 'change:serverState', this.render);
+    this.listenTo(this.model, 'change:serverState', function() {
+      var serverState = this.model.get('serverState');
+      console.log('change in server state => ' + serverState);
+      self.render();
+      if (serverState == 'started') {
+        console.log('open request');
+        this.model.open();
+      } else {
+        console.log('close request');
+        this.model.close();
+      }
+    });
 
     this.model.on('serverError', function(err) {
       self.error = err;
@@ -27,6 +38,8 @@ module.exports = Backbone.View.extend({
   template: require('./templates/server-control.hbs'),
 
   render: function() {
+    console.log('rendering start server');
+
     var port = this.model.get('port');
     var serverState = this.model.get('serverState');
     var serverStateText = serverState == 'started'
@@ -56,7 +69,9 @@ module.exports = Backbone.View.extend({
     return $('#portnumber').val();
   },
 
-  togglestart: function() {
+  togglestart: function(event) {
+    event.preventDefault();
+
     // clear previous error message
     this.error = null;
     $('#server-error').html('');
