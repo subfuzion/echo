@@ -12,12 +12,13 @@ var App = Backbone.Model.extend({
     serverState: 'stopped'
   },
 
+  /*
   initialize: function() {
-    this.client = new EchoClient();
   },
+  */
 
   validate: function(attrs) {
-    if (!this.client.validatePort(attrs.port)) {
+    if (!EchoClient.validatePort(attrs.port)) {
       return 'invalid port';
     }
   },
@@ -89,7 +90,13 @@ var App = Backbone.Model.extend({
   },
 
   open: function() {
-    if (this.client.isOpen()) return;
+    //if (this.client.isOpen()) return;
+    if (this.client != null) {
+      console.log('error: client already open');
+      return;
+    }
+
+    this.client = new EchoClient();
 
     var self = this;
 
@@ -107,6 +114,7 @@ var App = Backbone.Model.extend({
       self.client.onerror = null;
       self.client.onmessage = null;
       self.client.onhistory = null;
+      self.client = null;
 
       self.trigger('close');
     };
@@ -116,6 +124,15 @@ var App = Backbone.Model.extend({
       console.log('client error:');
       console.log(err);
       console.log('-----');
+
+      // release handlers
+      self.client.onopen = null;
+      self.client.onclose = null;
+      self.client.onerror = null;
+      self.client.onmessage = null;
+      self.client.onhistory = null;
+      self.client = null;
+
       self.trigger('error', err.message);
     };
 
@@ -135,22 +152,23 @@ var App = Backbone.Model.extend({
   },
 
   close: function() {
-    if (this.client.isClosed()) return;
+    if (this.client == null || this.client.isClosed()) return;
     this.client.close();
   },
 
   send: function(message) {
-    if (!this.client.isOpen()) return;
+    if (this.client && !this.client.isOpen()) return;
     this.client.send(message);
   },
 
   sendHistoryCommand: function() {
     // just a shortcut for entering '[HISTORY]'
-    if (!this.client.isOpen()) return;
+    if (this.client && !this.client.isOpen()) return;
     this.client.sendHistoryCommand();
   },
 
   historyFilter: function(pattern) {
+    if (!this.client) return [];
     return this.client.historyFilter(pattern);
   }
 });

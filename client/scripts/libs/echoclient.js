@@ -34,7 +34,7 @@ EchoClient.prototype.open = function(uri) {
     return;
   }
 
-  if (!this.validatePort) {
+  if (!EchoClient.validatePort) {
     console.log('error: invalid port: ' + this.port);
     callHandler('error', 'invalid port');
     return;
@@ -46,6 +46,7 @@ EchoClient.prototype.open = function(uri) {
     this.ws = new WebSocket(uri);
   } catch (err) {
     callHandler('error', err);
+    return;
   }
 
   this.ws.onopen = function () {
@@ -134,7 +135,7 @@ EchoClient.prototype.historyFilter = function(pattern) {
 };
 
 
-EchoClient.prototype.validatePort = function(port) {
+EchoClient.validatePort = function(port) {
   return port >= 1024 && port < 65535;
 };
 

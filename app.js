@@ -3,7 +3,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , echo = require('echo.io')
-  , echoservers = {}  // map: port => server
+  , echoservers = {}// map: port => { server: rerver, uri: uri }
   ;
 
 var app = express();
@@ -32,6 +32,7 @@ app.get('/', routes.index);
 
 app.post('/api/v1/echoserver/:port/start', function (req, res) {
   var port = parseInt(req.params.port, 10);
+  var responseSent = false;
 
   if (isPortInUse(port)) {
     return res.json({
@@ -45,28 +46,44 @@ app.post('/api/v1/echoserver/:port/start', function (req, res) {
   echoserver.on('error', function(err) {
     console.log('error: ' + err.message);
 
-    res.json({
-      status: 'error',
-      message: err.message
-    });
+    clearPort(port);
+
+    // don't try to return error to client if it happens
+    // after the listening event, which returns ok
+    if (!responseSent) {
+      res.json({
+        status: 'error',
+        message: err.message
+      });
+    }
   });
 
   echoserver.on('listening', function(port_) {
-    console.log('echo server v0.0.7 started on port ' + port);
+    console.log('echo server v0.0.7 started on port ' + port_);
 
-    echoservers[port_] = echoserver;
+    setPort(port_, echoserver);
 
     res.json({
       status: 'ok',
       message: 'echo server started on port ' + port_
     });
+
+    responseSent = true;
   });
 
-  echoserver.on('connection', function(ws) {
-    var host = ws.upgradeReq.headers.host;
-    var port = host.split(':')[1];
+  echoserver.on('connection', function(ws, host) {
+    console.log('echo connection opened on uri ' + host);
+    setPortConnection(port, host);
+  });
 
-    console.log('echo connection opened on port ' + port);
+  echoserver.on('clientclose', function(ws, host) {
+    console.log('clientclose: ' + host);
+    clearPort(port);
+  });
+
+  echoserver.on('clienterror', function(err, host) {
+    console.log('clienterror ' + host + ' => ' + err.message);
+    clearPort(port);
   });
 
   echoserver.start(port);
@@ -85,7 +102,7 @@ app.post('/api/v1/echoserver/:port/stop', function (req, res) {
   var response;
 
   try {
-    echoservers[port].close();
+    clearPort(port);
 
     response = {
       status: 'OK',
@@ -126,5 +143,28 @@ app.get('/api/v1/echoserver/:port', function (req, res) {
 // helpers
 
 function isPortInUse(port) {
-  return echoservers[port] instanceof echo.Server;
+  var channel = echoservers[port];
+  return channel && channel.uri;
+}
+
+function setPort(port, server) {
+    echoservers[port] = { server: server, uri: null };
+}
+
+function setPortConnection(port, uri) {
+  echoservers[port].uri = uri;
+}
+
+function clearPort(port) {
+  try {
+    var channel = echoservers[port];
+    if (channel && channel.server) {
+      channel.server.close();
+      channel.server = null;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  delete echoservers[port];
 }
