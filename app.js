@@ -93,13 +93,6 @@ app.post('/api/v1/echoserver/:port/start', function (req, res) {
 app.post('/api/v1/echoserver/:port/stop', function (req, res) {
   var port = parseInt(req.params.port, 10);
 
-  if (!isPortInUse(port)) {
-    return res.json({
-      status: 'error',
-      message: 'no echo server listening on port ' + port
-    });
-  }
-
   var response;
 
   try {
