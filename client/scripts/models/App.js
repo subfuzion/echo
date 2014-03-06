@@ -1,5 +1,6 @@
 var EchoClient = require('./../libs/echoclient')
   , EchoResponse = require('./EchoResponse')
+  , _ = require('underscore')
   ;
 
 /**
@@ -125,12 +126,8 @@ var App = Backbone.Model.extend({
 
     self.client.onclose = function() {
       console.log('connection is closed');
-      // release handlers
-      self.client.onopen = null;
-      self.client.onclose = null;
-      self.client.onerror = null;
-      self.client.onmessage = null;
-      self.client.onhistory = null;
+
+      self.removeHandlers();
       self.client = null;
 
       self.set('isOpen', false);
@@ -141,12 +138,7 @@ var App = Backbone.Model.extend({
       console.log('client error:');
       console.log(err);
 
-      // release handlers
-      self.client.onopen = null;
-      self.client.onclose = null;
-      self.client.onerror = null;
-      self.client.onmessage = null;
-      self.client.onhistory = null;
+      self.removeHandlers();
       self.client = null;
 
       self.set('isOpen', false);
@@ -193,3 +185,14 @@ var App = Backbone.Model.extend({
 
 module.exports = App;
 
+// We stick to the convention that only event callbacks
+// start with 'on' (ex: 'onerror')
+App.prototype.removeHandlers = function() {
+  var self = this;
+
+  _.each(_.filter(Object.keys(this.client), function(key) {
+    return /^on/.test(key) && typeof self[key] == 'function';
+  }), function(key) {
+    self[key] = null;
+  });
+};
