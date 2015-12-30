@@ -1,5 +1,5 @@
 echo
-----
+====
 
 A Node.js Express web application that hosts an [echo.io](https://github.com/tonypujals/echo.io) WebSocket server.
 
@@ -11,7 +11,7 @@ A Node.js Express web application that hosts an [echo.io](https://github.com/ton
 
 
 Live site
-=========
+---------
 
 You can test a live version of **echo** at the following link:
 
@@ -21,7 +21,7 @@ http://echo.nodester.io
 
 
 Installation
-============
+------------
 
 Clone this [repo](https://github.com/tonypujals/echo.git) or download the [archive](https://github.com/tonypujals/echo/archive/master.zip). Change directory to the package root and run:
 
@@ -29,7 +29,7 @@ Clone this [repo](https://github.com/tonypujals/echo.git) or download the [archi
 
 
 Starting the server
-===================
+-------------------
 
     npm start
     
@@ -39,7 +39,7 @@ The server will run on port `3000` by default unless the `PORT` environment vari
 
 
 Rebuilding client scripts
-=========================
+-------------------------
 
 If you make any changes to the client script files (in the `./client/script/` directory), you will need to regenerate the compiled [Handlebars](http://handlebarsjs.com/) templates and re-[browserify](http://browserify.org/) the browser JavaScript modules:
 
@@ -50,7 +50,7 @@ If you plan on doing a lot of editing, you may want to run [watchify](https://gi
     npm watch
 
 Web Application Details
-=======================
+-----------------------
 
 **echo** is an [Express](http://expressjs.com/) single page web application.
 
